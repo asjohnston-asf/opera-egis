@@ -1,0 +1,82 @@
+Parameters:
+
+  Username:
+    Type: String
+    NoEcho: true
+
+  Password:
+    Type: String
+    NoEcho: true
+
+  BucketName:
+    Type: String
+
+Resources:
+
+  Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Environment:
+        Variables:
+          USERNAME: !Ref Username
+          PASSWORD: !Ref Password
+          BUCKET: !Ref BucketName
+          GDAL_DATA: /opt/share/gdal
+          PROJ_LIB: /opt/share/proj
+      Code:
+        S3Bucket: asj-dev
+        S3Key: cloudformation/package.zip
+      Handler: lambda.lambda_handler
+      Layers:
+        - arn:aws:lambda:us-west-2:524387336408:layer:gdal38:4
+      MemorySize: 512
+      Role: !GetAtt LambdaRole.Arn
+      Runtime: python3.10
+      Timeout: 900
+
+  Queue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 900
+
+  LambdaEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      FunctionName: !Ref Lambda
+      BatchSize: 500
+      EventSourceArn: !GetAtt Queue.Arn
+      MaximumBatchingWindowInSeconds: 5
+
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Lambda}"
+      RetentionInDays: 90
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          Action: sts:AssumeRole
+          Principal:
+            Service: lambda.amazonaws.com
+          Effect: Allow
+      Policies:
+        - PolicyName: policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource: !Sub "arn:aws:s3:::${BucketName}/*"
+              - Effect: Allow
+                Action: sqs:*
+                Resource: !GetAtt Queue.Arn
