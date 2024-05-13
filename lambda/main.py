@@ -71,7 +71,7 @@ def process_granules(granules):
     del os.environ['AWS_ACCESS_KEY_ID']
     del os.environ['AWS_SECRET_ACCESS_KEY']
     del os.environ['AWS_SESSION_TOKEN']
-    s3.put_object(Bucket=os.environ['BUCKET'], Key=str(uuid.uuid4()), Body=content)
+    s3.put_object(Bucket=os.environ['BUCKET'], Key=f'opera-egis/{str(uuid.uuid4())}', Body=content)
 
 
 def lambda_handler(event, context):
