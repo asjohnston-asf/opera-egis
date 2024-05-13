@@ -67,7 +67,7 @@ def get_raster_metadata(raster_path: str) -> dict:
 def process_granules(granules):
     get_auth()
     data = [get_raster_metadata(granule) for granule in granules]
-    content = '\n'.join([','.join([str(value) for value in item.values()]) for item in data])
+    content = '\n'.join([','.join([str(value) for value in item.values()]) for item in data]) + '\n'
     del os.environ['AWS_ACCESS_KEY_ID']
     del os.environ['AWS_SECRET_ACCESS_KEY']
     del os.environ['AWS_SESSION_TOKEN']
