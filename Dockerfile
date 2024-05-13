@@ -21,7 +21,7 @@ ENV \
 ENV PACKAGE_PREFIX=/var/task
 
 # Copy local files
-COPY lambda.py ${PACKAGE_PREFIX}/lambda.py
+COPY main.py ${PACKAGE_PREFIX}/main.py
 
 # install package
 # This example shows how to install GDAL python bindings for gdal 3.6

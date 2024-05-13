@@ -26,7 +26,7 @@ Resources:
       Code:
         S3Bucket: asj-dev
         S3Key: cloudformation/package.zip
-      Handler: lambda.lambda_handler
+      Handler: main.lambda_handler
       Layers:
         - arn:aws:lambda:us-west-2:524387336408:layer:gdal38:4
       MemorySize: 512
