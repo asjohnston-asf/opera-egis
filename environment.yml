@@ -1,0 +1,9 @@
+name: opera-egis
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.12
+  - gdal
+  - requests
+  - boto3
